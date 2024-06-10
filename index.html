@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <title>GitHub User Search</title>
+</head>
+<body>
+<div class="container">
+    <h1>Search GitHub User</h1>
+    <form id="searchForm">
+        <div class="form-group">
+            <label for="username">GitHub Username</label>
+            <input type="text" class="form-control" id="username" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <div id="userDetails" style="display: none;">
+        <h2 id="name"></h2>
+        <p>Email: <span id="email"></span></p>
+        <p>Public Repositories: <span id="public_repos"></span></p>
+        <p>Followers: <span id="followers"></span></p>
+        <p>Following: <span id="following"></span></p>
+        <p>Bio: <span id="bio"></span></p>
+        <h3>Repositories:</h3>
+        <ul id="repos"></ul>
+    </div>
+    <div id="error" class="alert alert-danger" style="display: none;"></div>
+</div>
+<script>
+    document.getElementById('searchForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        try {
+            const userResponse = await fetch(`https://api.github.com/users/${username}`);
+            if (!userResponse.ok) {
+                throw new Error('User not found');
+            }
+            const userData = await userResponse.json();
+            const reposResponse = await fetch(userData.repos_url);
+            const reposData = await reposResponse.json();
+
+            document.getElementById('name').textContent = userData.name || 'N/A';
+            document.getElementById('email').textContent = userData.email || 'N/A';
+            document.getElementById('public_repos').textContent = userData.public_repos;
+            document.getElementById('followers').textContent = userData.followers;
+            document.getElementById('following').textContent = userData.following;
+            document.getElementById('bio').textContent = userData.bio || 'N/A';
+
+            const reposList = document.getElementById('repos');
+            reposList.innerHTML = '';
+            reposData.forEach(repo => {
+                const repoItem = document.createElement('li');
+                const repoLink = document.createElement('a');
+                repoLink.href = repo.html_url;
+                repoLink.textContent = repo.name;
+                repoItem.appendChild(repoLink);
+                reposList.appendChild(repoItem);
+            });
+
+            document.getElementById('userDetails').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+        } catch (error) {
+            document.getElementById('userDetails').style.display = 'none';
+            document.getElementById('error').textContent = error.message;
+            document.getElementById('error').style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>
