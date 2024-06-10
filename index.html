@@ -4,6 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #161b22;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #58a6ff;
+        }
+        .form-control {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .form-control:focus {
+            background-color: #0d1117;
+            border-color: #58a6ff;
+            color: #c9d1d9;
+        }
+        .btn-primary {
+            background-color: #238636;
+            border-color: #238636;
+        }
+        .btn-primary:hover {
+            background-color: #2ea043;
+            border-color: #2ea043;
+        }
+        #userDetails {
+            margin-top: 20px;
+        }
+        .repo-card {
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #0d1117;
+        }
+        .repo-card a {
+            text-decoration: none;
+            color: #58a6ff;
+        }
+        .repo-card a:hover {
+            text-decoration: underline;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
     <title>GitHub User Search</title>
 </head>
 <body>
@@ -18,13 +79,11 @@
     </form>
     <div id="userDetails" style="display: none;">
         <h2 id="name"></h2>
-        <p>Email: <span id="email"></span></p>
         <p>Public Repositories: <span id="public_repos"></span></p>
         <p>Followers: <span id="followers"></span></p>
         <p>Following: <span id="following"></span></p>
-        <p>Bio: <span id="bio"></span></p>
         <h3>Repositories:</h3>
-        <ul id="repos"></ul>
+        <div id="repos"></div>
     </div>
     <div id="error" class="alert alert-danger" style="display: none;"></div>
 </div>
@@ -42,21 +101,21 @@
             const reposData = await reposResponse.json();
 
             document.getElementById('name').textContent = userData.name || 'N/A';
-            document.getElementById('email').textContent = userData.email || 'N/A';
             document.getElementById('public_repos').textContent = userData.public_repos;
             document.getElementById('followers').textContent = userData.followers;
             document.getElementById('following').textContent = userData.following;
-            document.getElementById('bio').textContent = userData.bio || 'N/A';
 
             const reposList = document.getElementById('repos');
             reposList.innerHTML = '';
             reposData.forEach(repo => {
-                const repoItem = document.createElement('li');
-                const repoLink = document.createElement('a');
-                repoLink.href = repo.html_url;
-                repoLink.textContent = repo.name;
-                repoItem.appendChild(repoLink);
-                reposList.appendChild(repoItem);
+                const repoCard = document.createElement('div');
+                repoCard.className = 'repo-card';
+                repoCard.innerHTML = `
+                        <h4><a href="${repo.html_url}" target="_blank">${repo.name}</a></h4>
+                        <p>${repo.description || 'No description'}</p>
+                        <p><strong>Stars:</strong> ${repo.stargazers_count} | <strong>Forks:</strong> ${repo.forks_count}</p>
+                    `;
+                reposList.appendChild(repoCard);
             });
 
             document.getElementById('userDetails').style.display = 'block';
